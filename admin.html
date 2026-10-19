@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yönetim Paneli | Adasar Catering</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; margin: 0; padding: 40px; color: #111827; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        h1 { margin-top: 0; border-bottom: 2px solid #e5e7eb; padding-bottom: 15px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; }
+        input[type="text"], select, textarea { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; font-family: inherit;}
+        textarea { resize: vertical; min-height: 80px; }
+        select { font-size: 1.1rem; font-weight: bold; color: #374151; cursor: pointer; }
+        .btn { background-color: #111827; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; }
+        .btn:hover { background-color: #374151; }
+        .upload-area { background: #f9fafb; border: 2px dashed #d1d5db; padding: 20px; text-align: center; border-radius: 6px; margin-bottom: 30px; }
+        #status { 
+            position: fixed; 
+            top: 20px; 
+            right: 20px; 
+            padding: 16px 24px; 
+            border-radius: 8px; 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); 
+            z-index: 9999; 
+            font-weight: 600; 
+            display: none; 
+            animation: slideIn 0.3s ease-out forwards;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .success { background-color: #ecfdf5; color: #047857; border-left: 4px solid #10b981; }
+        .error { background-color: #fef2f2; color: #b91c1c; border-left: 4px solid #ef4444; }
+        .info { background-color: #eff6ff; color: #1d4ed8; border-left: 4px solid #3b82f6; }
+        .menu-section { display: none; padding: 25px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 20px;}
+        .menu-section.active { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Yönetim Paneli</h1>
+    <a href="anasayfa.html" style="display: inline-block; margin-bottom: 20px; color: #4b5563; text-decoration: none; font-weight: bold; border: 1px solid #d1d5db; padding: 8px 16px; border-radius: 6px; background-color: #f9fafb;">🌍 Siteyi Aç</a>
+    
+    <div id="status"></div>
+
+    <div class="form-group" style="margin-bottom: 30px;">
+        <label style="font-size: 1.1rem; color: #111827;">Lütfen Düzenlemek İstediğiniz Alanı Seçin:</label>
+        <select id="menuSelector" onchange="changeMenu()">
+            <option value="none">-- Seçim Yapınız --</option>
+            <option value="sec_anasayfa">🏠 Ana Sayfa Yazıları</option>
+            <option value="sec_sss">❓ Sık Sorulan Sorular (SSS)</option>
+            <option value="sec_iletisim">📍 İletişim Bilgileri</option>
+            <option value="sec_sabit_menuler">🍛 Sabit Menü Açıklamaları</option>
+            <option value="sec_dinamik">🍽️ Yeni Menü Ekleme</option>
+        </select>
+    </div>
+
+    <form id="dataForm">
+        <!-- Ana Sayfa Yazıları -->
+        <div id="sec_anasayfa" class="menu-section">
+            <h2 style="margin-top: 0; color: #374151;">Ana Sayfa Yazıları</h2>
+
+            <div class="form-group">
+                <label>Karşılama Başlığı (Sitenin en üstündeki büyük yazı)</label>
+                <input type="text" id="hero_title" placeholder="Lezzeti Özel Günlerinize Taşıyoruz">
+            </div>
+            <div class="form-group">
+                <label>Karşılama Alt Metni (Başlığın altındaki açıklama)</label>
+                <textarea id="hero_desc" rows="3" placeholder="Sünnet, düğün, cenaze ve kurumsal etkinlikleriniz için profesyonel catering ve toplu yemek hizmeti."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Hakkımızda / Hikayemiz Metni</label>
+                <textarea id="about_text" rows="6" placeholder="Adasar Catering olarak yılların getirdiği tecrübe ve mutfak sırlarıyla, en özel günlerinizde yanınızdayız. Küçük bir aile işletmesi ruhuyla başladığımız bu lezzet yolculuğunda, geleneksel Türk mutfağının en seçkin tatlarını usta ellerden sofralarınıza taşıyoruz. Amacımız sadece doyurmak değil, misafirlerinize damaklarda iz bırakan bir ziyafet sunmaktır."></textarea>
+            </div>
+        </div>
+
+        <!-- Sık Sorulan Sorular (SSS) -->
+        <div id="sec_sss" class="menu-section">
+            <h2 style="margin-top: 0; color: #374151;">Sık Sorulan Sorular (SSS)</h2>
+            <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 20px;">Soruyu ve cevabını alt alta yazın. İki soru arasına fazladan bir boş satır (Enter) bırakın.<br><b>Örnek:</b><br>Siparişleri kaç gün önceden vermeliyiz?<br>En az 3 gün önceden haber vermeniz gerekmektedir.<br><br>Minimum sipariş miktarınız nedir?<br>En az 50 kişilik sipariş alıyoruz.</p>
+            <div class="form-group">
+                <textarea id="sss_list" rows="10"></textarea>
+            </div>
+        </div>
+
+        <!-- İletişim -->
+        <div id="sec_iletisim" class="menu-section">
+            <h2 style="margin-top: 0; color: #374151;">İletişim Bilgileri</h2>
+            <div class="form-group">
+                <label>Telefon Numarası</label>
+                <input type="text" id="genel_telefon">
+            </div>
+            
+            <div class="form-group">
+                <label>Açık Adres (HTML <br> kullanabilirsiniz)</label>
+                <textarea id="contact_address" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>E-Posta Adresi</label>
+                <input type="text" id="contact_email">
+            </div>
+            <div class="form-group">
+                <label>Instagram Adresi (Link veya Kullanıcı Adı)</label>
+                <input type="text" id="contact_instagram">
+            </div>
+        </div>
+
+        <!-- Sabit Menüler -->
+        <div id="sec_sabit_menuler" class="menu-section">
+            <h2 style="margin-top: 0; color: #374151;">Sabit Menü Açıklamaları</h2>
+            
+            <h3 style="color: #4b5563; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px;">Sünnet & Düğün Menüsü</h3>
+            <div class="form-group">
+                <label>Açıklama</label>
+                <textarea id="sunnet_aciklama" rows="3" placeholder="Geleneksel ve bereketli menüler."></textarea>
+            </div>
+
+            <h3 style="color: #4b5563; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; margin-top: 30px;">Cenaze & Mevlüt Menüsü</h3>
+            <div class="form-group">
+                <label>Açıklama</label>
+                <textarea id="cenaze_aciklama" rows="3" placeholder="Zor gününüzde yanınızdayız."></textarea>
+            </div>
+
+            <h3 style="color: #4b5563; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; margin-top: 30px;">İşyerleri & Kurumsal Menü</h3>
+            <div class="form-group">
+                <label>Açıklama</label>
+                <textarea id="kurumsal_aciklama" rows="3" placeholder="Günlük tabldot hizmeti."></textarea>
+            </div>
+        </div>
+        <!-- Dinamik Menüler -->
+        <div id="sec_dinamik" class="menu-section">
+            <h2 style="margin-top: 0; color: #374151;">Menü Yönetimi</h2>
+            <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 20px;">Buradan "Tüm Menüler" sayfasına yeni menü ekleyebilir, mevcut menüleri düzenleyebilir veya silebilirsiniz.</p>
+            
+            <div style="background: white; padding: 22px; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #f3f4f6; padding-bottom: 10px;">
+                    <h3 style="margin: 0; font-size: 1.15rem; color: #1f2937;" id="dynamic_form_title">➕ Yeni Menü Ekle</h3>
+                    <button type="button" id="cancel_edit_btn" onclick="cancelMenuEdit()" style="display: none; background: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">✖️ İptal Et</button>
+                </div>
+
+                <input type="hidden" id="edit_menu_index" value="-1">
+
+                <div class="form-group">
+                    <label>Menü Başlığı</label>
+                    <input type="text" id="yeni_menu_baslik" placeholder="Örn: Personel Tabldot Menüsü">
+                </div>
+
+                <div class="form-group">
+                    <label>Fiyat Yazısı</label>
+                    <input type="text" id="yeni_menu_fiyat" placeholder="Örn: 199 TL">
+                </div>
+
+                <div class="form-group">
+                    <label>Görsel (Bilgisayardan Yükle veya Dosya Yolu)</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" id="yeni_menu_image" placeholder="Örn: assets/upload_...jpg" style="flex: 1;" oninput="updateImagePreview(this.value)">
+                        <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="uploadImage()">
+                        <label for="fileInput" class="btn" style="width: auto; padding: 10px 18px; cursor: pointer; background-color: #374151; white-space: nowrap; font-size: 0.9rem;">📁 Bilgisayardan Seç</label>
+                    </div>
+
+                    <!-- Canlı Görsel Önizleme Kutusu -->
+                    <div id="image_preview_box" style="margin-top: 12px; padding: 10px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; display: none; align-items: center; gap: 15px;">
+                        <img id="image_preview" src="" alt="Önizleme" style="width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid #d1d5db; background: #fff;">
+                        <div>
+                            <span style="font-size: 0.85rem; color: #059669; font-weight: 600; display: block;">✓ Görsel hazır</span>
+                            <button type="button" onclick="removeSelectedImage()" style="margin-top: 5px; background: none; border: none; color: #dc2626; cursor: pointer; font-size: 0.85rem; padding: 0; text-decoration: underline;">Görseli Kaldır</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Açıklama / Menü İçeriği</label>
+                    <textarea id="yeni_menu_desc" rows="3" placeholder="Örn: * Ezogelin Çorbası&#10;* Tavuklu Pilav&#10;* Tatlı / Ayran"></textarea>
+                </div>
+
+                <button type="button" id="save_dynamic_menu_btn" class="btn" style="background-color: #059669; font-size: 1rem; padding: 12px;" onclick="addOrUpdateDynamicMenu()">Menüyü Ekle</button>
+            </div>
+
+            <h3 style="margin-top:0; color: #374151;">Kayıtlı Menüler</h3>
+            <div id="dinamik_menu_listesi" style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- Eklendikçe buraya gelecek -->
+            </div>
+            
+            <!-- Bu bölüm otomatik kaydedildiği için genel kaydet butonunu gizleyebiliriz ama kalsın -->
+        </div>
+
+        <button type="submit" id="saveBtn" class="btn" style="display: none;">Seçili Alanı Kaydet</button>
+    </form>
+</div>
+
+<script>
+    // Sayfa yüklendiğinde mevcut verileri getir
+    fetch('/api/data')
+        .then(res => res.json())
+        .then(data => {
+            // Sünnet
+            document.getElementById('sunnet_aciklama').value = data.sunnet_aciklama || '';
+            
+            // Cenaze
+            document.getElementById('cenaze_aciklama').value = data.cenaze_aciklama || '';
+            
+            // Kurumsal
+            document.getElementById('kurumsal_aciklama').value = data.kurumsal_aciklama || '';
+
+            // İletişim & Telefon
+            document.getElementById('genel_telefon').value = data.contact_phone || '';
+            document.getElementById('contact_address').value = data.contact_address || '';
+            document.getElementById('contact_email').value = data.contact_email || '';
+            document.getElementById('contact_instagram').value = data.contact_instagram || '';
+
+            // Ana Sayfa
+            document.getElementById('hero_title').value = data.hero_title || '';
+            document.getElementById('hero_desc').value = data.hero_desc || '';
+            document.getElementById('about_text').value = data.about_text || '';
+            
+            // SSS
+            document.getElementById('sss_list').value = data.sss_list || '';
+
+            // Dinamik Menüler
+            window.dynamicMenus = data.dynamic_menus || [];
+            renderDynamicMenus();
+        })
+        .catch(err => alert("Veriler yüklenemedi, sunucu çalışmıyor olabilir."));
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return String(text)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function updateImagePreview(url) {
+        const previewBox = document.getElementById('image_preview_box');
+        const previewImg = document.getElementById('image_preview');
+        if (!url || !url.trim()) {
+            previewBox.style.display = 'none';
+            previewImg.src = '';
+            return;
+        }
+        let fullUrl = url.trim();
+        if (!fullUrl.startsWith('/') && !fullUrl.startsWith('http')) {
+            fullUrl = '/' + fullUrl;
+        }
+        previewImg.src = fullUrl;
+        previewBox.style.display = 'flex';
+    }
+
+    function removeSelectedImage() {
+        document.getElementById('yeni_menu_image').value = '';
+        updateImagePreview('');
+    }
+
+    function renderDynamicMenus() {
+        const container = document.getElementById('dinamik_menu_listesi');
+        container.innerHTML = '';
+        if(!window.dynamicMenus || window.dynamicMenus.length === 0) {
+            container.innerHTML = '<p style="color: #6b7280; font-style: italic; background: #fff; padding: 25px; border-radius: 8px; border: 1px dashed #d1d5db; text-align: center;">Henüz menü eklenmedi.</p>';
+            return;
+        }
+
+        window.dynamicMenus.forEach((menu, index) => {
+            const div = document.createElement('div');
+            div.style.border = '1px solid #e5e7eb';
+            div.style.padding = '14px 18px';
+            div.style.borderRadius = '8px';
+            div.style.background = '#fff';
+            div.style.display = 'flex';
+            div.style.justifyContent = 'space-between';
+            div.style.alignItems = 'center';
+            div.style.gap = '15px';
+            div.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)';
+
+            let thumbSrc = menu.image || '/assets/hero_catering.png';
+            if (thumbSrc && !thumbSrc.startsWith('/') && !thumbSrc.startsWith('http')) {
+                thumbSrc = '/' + thumbSrc;
+            }
+
+            const cleanTitle = escapeHtml(menu.baslik || 'Başlıksız Menü');
+            const cleanPrice = escapeHtml(menu.fiyat || 'Fiyatsız');
+            const cleanDesc = escapeHtml(menu.desc ? (menu.desc.length > 70 ? menu.desc.substring(0, 70) + '...' : menu.desc) : 'Açıklama yok');
+
+            div.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0;">
+                    <img src="${thumbSrc}" onerror="this.onerror=null; this.src='/assets/hero_catering.png'; this.style.opacity='0.4';" alt="" style="width: 55px; height: 55px; border-radius: 6px; object-fit: cover; background: #f3f4f6; border: 1px solid #e5e7eb; flex-shrink: 0;">
+                    <div style="min-width: 0;">
+                        <h4 style="margin: 0 0 4px 0; font-size: 1rem; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${cleanTitle} 
+                            <span style="color: #059669; font-weight: 600; margin-left: 6px;">(${cleanPrice})</span>
+                        </h4>
+                        <p style="margin: 0; font-size: 0.85rem; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${cleanDesc}
+                        </p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                    <button type="button" style="background: #2563eb; color: white; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem;" onclick="editDynamicMenu(${index})">✏️ Düzenle</button>
+                    <button type="button" style="background: #dc2626; color: white; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem;" onclick="deleteDynamicMenu(${index})">🗑️ Sil</button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function editDynamicMenu(index) {
+        const menu = window.dynamicMenus[index];
+        if(!menu) return;
+
+        document.getElementById('edit_menu_index').value = index;
+        document.getElementById('dynamic_form_title').innerText = `✏️ Menüyü Düzenle: ${menu.baslik || ''}`;
+        document.getElementById('yeni_menu_baslik').value = menu.baslik || '';
+        document.getElementById('yeni_menu_fiyat').value = menu.fiyat || '';
+        document.getElementById('yeni_menu_image').value = menu.image || '';
+        document.getElementById('yeni_menu_desc').value = menu.desc || '';
+
+        updateImagePreview(menu.image);
+
+        const saveBtn = document.getElementById('save_dynamic_menu_btn');
+        saveBtn.innerText = 'Değişiklikleri Kaydet';
+        saveBtn.style.backgroundColor = '#2563eb';
+        document.getElementById('cancel_edit_btn').style.display = 'inline-block';
+
+        document.getElementById('dynamic_form_title').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function cancelMenuEdit() {
+        document.getElementById('edit_menu_index').value = '-1';
+        document.getElementById('dynamic_form_title').innerText = '➕ Yeni Menü Ekle';
+        document.getElementById('yeni_menu_baslik').value = '';
+        document.getElementById('yeni_menu_fiyat').value = '';
+        document.getElementById('yeni_menu_image').value = '';
+        document.getElementById('yeni_menu_desc').value = '';
+        
+        updateImagePreview('');
+
+        const saveBtn = document.getElementById('save_dynamic_menu_btn');
+        saveBtn.innerText = 'Menüyü Ekle';
+        saveBtn.style.backgroundColor = '#059669';
+        document.getElementById('cancel_edit_btn').style.display = 'none';
+    }
+
+    function addOrUpdateDynamicMenu() {
+        const baslik = document.getElementById('yeni_menu_baslik').value.trim();
+        if(!baslik) {
+            alert('Lütfen menü için en azından bir başlık girin.');
+            return;
+        }
+
+        const editIndex = parseInt(document.getElementById('edit_menu_index').value);
+        const newImage = document.getElementById('yeni_menu_image').value.trim();
+
+        if (editIndex >= 0 && editIndex < window.dynamicMenus.length) {
+            // Düzenleme Modu
+            const oldMenu = window.dynamicMenus[editIndex];
+            // Eğer görsel değiştiyse ve eski görsel upload_ ile başlıyorsa sunucudaki eski görseli temizle
+            if (oldMenu.image && oldMenu.image !== newImage) {
+                fetch('/api/delete-image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ imagePath: oldMenu.image })
+                }).catch(e => console.error("Eski görsel silinemedi:", e));
+            }
+
+            window.dynamicMenus[editIndex] = {
+                baslik: baslik,
+                fiyat: document.getElementById('yeni_menu_fiyat').value.trim(),
+                image: newImage,
+                desc: document.getElementById('yeni_menu_desc').value.trim()
+            };
+
+            saveDynamicMenusToServer(() => {
+                cancelMenuEdit();
+                renderDynamicMenus();
+                showStatus('Menü başarıyla güncellendi!', 'success');
+            });
+        } else {
+            // Yeni Ekleme Modu
+            const newMenu = {
+                baslik: baslik,
+                fiyat: document.getElementById('yeni_menu_fiyat').value.trim(),
+                image: newImage,
+                desc: document.getElementById('yeni_menu_desc').value.trim()
+            };
+
+            window.dynamicMenus.push(newMenu);
+            
+            saveDynamicMenusToServer(() => {
+                cancelMenuEdit();
+                renderDynamicMenus();
+                showStatus('Yeni menü başarıyla eklendi!', 'success');
+            });
+        }
+    }
+
+    function deleteDynamicMenu(index) {
+        const menu = window.dynamicMenus[index];
+        if(!menu) return;
+
+        if(confirm(`"${menu.baslik || 'Bu menü'}" menüsünü ve sunucudaki görselini silmek istediğinize emin misiniz?`)) {
+            // Görseli sunucudan sil
+            if(menu.image) {
+                fetch('/api/delete-image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ imagePath: menu.image })
+                }).catch(e => console.error("Görsel silme isteği başarısız:", e));
+            }
+
+            // Eğer şu an bu menü düzenleniyorsa formu sıfırla
+            if(parseInt(document.getElementById('edit_menu_index').value) === index) {
+                cancelMenuEdit();
+            }
+
+            window.dynamicMenus.splice(index, 1);
+            saveDynamicMenusToServer(() => {
+                renderDynamicMenus();
+                showStatus('Menü ve sunucudaki görseli başarıyla silindi.', 'success');
+            });
+        }
+    }
+
+    function saveDynamicMenusToServer(callback) {
+        fetch('/api/data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ dynamic_menus: window.dynamicMenus })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'success') {
+                if(callback) callback();
+            }
+        })
+        .catch(err => {
+            console.error("Kayıt hatası:", err);
+            showStatus('Sunucuya kaydedilirken hata oluştu!', 'error');
+        });
+    }
+
+    function changeMenu() {
+        // Tüm sectionları gizle
+        document.querySelectorAll('.menu-section').forEach(el => el.classList.remove('active'));
+        
+        const selected = document.getElementById('menuSelector').value;
+        if(selected !== 'none') {
+            document.getElementById(selected).classList.add('active');
+            document.getElementById('saveBtn').style.display = 'block';
+        } else {
+            document.getElementById('saveBtn').style.display = 'none';
+        }
+    }
+
+    // Formu gönderip verileri kaydet
+    document.getElementById('dataForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const selected = document.getElementById('menuSelector').value;
+        if(selected === 'none') return;
+        
+        let data = {};
+        if(selected === 'sec_sabit_menuler') {
+            data = {
+                sunnet_aciklama: document.getElementById('sunnet_aciklama').value,
+                cenaze_aciklama: document.getElementById('cenaze_aciklama').value,
+                kurumsal_aciklama: document.getElementById('kurumsal_aciklama').value
+            };
+        } else if(selected === 'sec_iletisim') {
+            const tel = document.getElementById('genel_telefon').value;
+            let wa = tel.replace(/\D/g, '');
+            if(wa.startsWith('0')) wa = wa.substring(1);
+            if(!wa.startsWith('90') && wa.length > 0) wa = '90' + wa;
+
+            data = {
+                contact_phone: tel,
+                contact_whatsapp: wa,
+                contact_address: document.getElementById('contact_address').value,
+                contact_email: document.getElementById('contact_email').value,
+                contact_instagram: document.getElementById('contact_instagram').value
+            };
+        } else if(selected === 'sec_anasayfa') {
+            data = {
+                hero_title: document.getElementById('hero_title').value,
+                hero_desc: document.getElementById('hero_desc').value,
+                about_text: document.getElementById('about_text').value
+            };
+
+        } else if(selected === 'sec_sss') {
+            data = {
+                sss_list: document.getElementById('sss_list').value
+            };
+        } else if(selected === 'sec_dinamik') {
+            // Dinamik menüler anlık kaydedildiği için bu buton sadece uyarı verebilir veya hiçbir şey yapmaz.
+            data = { dynamic_menus: window.dynamicMenus };
+        }
+
+        fetch('/api/data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => {
+            if(res.status === 401) {
+                showStatus('Hata: Yetkiniz yok veya şifre yanlış', 'error');
+                return;
+            }
+            return res.json();
+        })
+        .then(data => {
+            if(data && data.status === 'success') {
+                showStatus('Değişiklikler başarıyla kaydedildi!', 'success');
+            }
+        });
+    });
+
+    // Görsel yükleme
+    function uploadImage() {
+        const fileInput = document.getElementById('fileInput');
+        if(!fileInput.files || fileInput.files.length === 0) {
+            return;
+        }
+
+        const file = fileInput.files[0];
+        showStatus('Görsel sunucuya yükleniyor...', 'info');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => {
+            if(res.status === 401) {
+                alert("Yetkiniz yok. Lütfen sayfayı yenileyip kullanıcı adı ve şifrenizle giriş yapın.");
+                throw new Error("Unauthorized");
+            }
+            return res.json();
+        })
+        .then(data => {
+            if(data.status === 'success') {
+                document.getElementById('yeni_menu_image').value = data.path;
+                updateImagePreview(data.path);
+                showStatus('Görsel başarıyla yüklendi ve assets klasörüne kaydedildi.', 'success');
+            } else {
+                alert("Görsel yüklenemedi: " + (data.error || 'Bilinmeyen hata'));
+            }
+        })
+        .catch(e => {
+            console.error(e);
+            showStatus('Görsel yüklenirken hata oluştu.', 'error');
+        })
+        .finally(() => {
+            fileInput.value = '';
+        });
+    }
+
+    function showStatus(msg, type) {
+        const statusEl = document.getElementById('status');
+        statusEl.innerText = msg;
+        statusEl.className = type;
+        statusEl.style.display = 'block';
+        setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+    }
+</script>
+</body>
+</html>

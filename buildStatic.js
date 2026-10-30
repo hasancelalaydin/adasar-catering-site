@@ -10,7 +10,7 @@ function updateHtmlFiles() {
     const files = ['anasayfa.html', 'hizmetlerimiz.html', 'menuler.html', 'iletisim.html'];
     
     files.forEach(file => {
-        const filePath = path.join(__dirname, file);
+        const filePath = path.join(__dirname, 'public', file);
         if (!fs.existsSync(filePath)) return;
         
         let html = fs.readFileSync(filePath, 'utf8');

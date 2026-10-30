@@ -13,6 +13,8 @@ if (fs.existsSync(envPath) && typeof process.loadEnvFile === 'function') {
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+const PUBLIC_DIR = path.join(__dirname, 'public');
+const ASSETS_DIR = path.join(PUBLIC_DIR, 'assets');
 const ADMIN_USER = process.env.ADMIN_USER || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
@@ -41,12 +43,12 @@ const auth = (req, res, next) => {
 
 // Protect admin.html
 app.get('/admin.html', auth, (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin.html'));
+    res.sendFile(path.join(__dirname, 'private', 'admin.html'));
 });
 
 // Serve the main page
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'anasayfa.html'));
+    res.sendFile(path.join(PUBLIC_DIR, 'anasayfa.html'));
 });
 
 // Temiz adresler: /menuler gibi adresler sayfayı açar,
@@ -54,44 +56,14 @@ app.get('/', (req, res) => {
 app.get(/^\/(anasayfa|hizmetlerimiz|menuler|iletisim)(\.html|\/)?$/, (req, res) => {
     const page = req.params[0];
     if (page !== 'anasayfa' && !req.params[1]) {
-        return res.sendFile(path.join(__dirname, page + '.html'));
+        return res.sendFile(path.join(PUBLIC_DIR, page + '.html'));
     }
     const query = req.originalUrl.slice(req.path.length);
     res.redirect(301, (page === 'anasayfa' ? '/' : '/' + page) + query);
 });
 
-// Sitenin kullandığı kök dosyalar. server.js, data.json gibi dosyalar dışarıya açılmaz.
-['style.css', 'app.js'].forEach(file => {
-    app.get('/' + file, (req, res) => {
-        res.sendFile(path.join(__dirname, file));
-    });
-});
-
-// Explicit asset delivery handler
-app.get('/assets/*path', (req, res, next) => {
-    // In Express 5, req.params.path is an array of segments
-    let assetPathStr = req.params.path || req.params[0] || '';
-    if (Array.isArray(assetPathStr)) {
-        assetPathStr = assetPathStr.join('/');
-    }
-    // Güvenlik: Yalnızca dosya adı kullanılır, assets klasörlerinin dışına çıkılamaz
-    const filename = path.basename(assetPathStr);
-    const candidates = [
-        path.join(__dirname, 'assets', filename),
-        path.join(process.cwd(), 'assets', filename),
-        path.join(__dirname, 'public', 'assets', filename)
-    ];
-    for (const p of candidates) {
-        if (fs.existsSync(p) && fs.statSync(p).isFile()) {
-            return res.sendFile(p);
-        }
-    }
-    next();
-});
-
-// Serve static files
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
-app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
+// Yalnızca public klasörü dışarıya açıktır. server.js, data.json ve .env gibi dosyalar açılmaz.
+app.use(express.static(PUBLIC_DIR, { index: false }));
 
 // GET /api/data
 app.get('/api/data', (req, res) => {
@@ -127,11 +99,10 @@ app.post('/api/data', auth, (req, res) => {
 // Setup multer for upload
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        const assetsDir = path.join(__dirname, 'assets');
-        if (!fs.existsSync(assetsDir)) {
-            fs.mkdirSync(assetsDir);
+        if (!fs.existsSync(ASSETS_DIR)) {
+            fs.mkdirSync(ASSETS_DIR, { recursive: true });
         }
-        cb(null, assetsDir);
+        cb(null, ASSETS_DIR);
     },
     filename: function (req, file, cb) {
         const ext = path.extname(file.originalname);
@@ -159,17 +130,6 @@ app.post('/api/upload', auth, upload.single('file'), (req, res) => {
         return res.status(400).json({ error: "Dosya seçilmedi" });
     }
 
-    // Express 5 ve sunucu ortamları (cPanel / Passenger / Nginx) için hem assets hem public/assets klasörüne kopyala
-    try {
-        const publicAssetsDir = path.join(__dirname, 'public', 'assets');
-        if (!fs.existsSync(publicAssetsDir)) {
-            fs.mkdirSync(publicAssetsDir, { recursive: true });
-        }
-        fs.copyFileSync(req.file.path, path.join(publicAssetsDir, req.file.filename));
-    } catch(e) {
-        console.error("public/assets klasörüne kopyalama:", e.message);
-    }
-
     res.json({ status: "success", path: `assets/${req.file.filename}` });
 });
 
@@ -188,21 +148,15 @@ app.post('/api/delete-image', auth, (req, res) => {
             return res.json({ status: "skipped", message: "Varsayılan sistem görseli silinmedi" });
         }
 
-        const candidatePaths = [
-            path.join(__dirname, 'assets', filename),
-            path.join(process.cwd(), 'assets', filename),
-            path.join(__dirname, 'public', 'assets', filename)
-        ];
+        const imageFile = path.join(ASSETS_DIR, filename);
 
         let deleted = false;
-        for (const p of candidatePaths) {
-            if (fs.existsSync(p) && fs.statSync(p).isFile()) {
-                try {
-                    fs.unlinkSync(p);
-                    deleted = true;
-                } catch (e) {
-                    console.error("Görsel silinirken hata oluştu:", p, e);
-                }
+        if (fs.existsSync(imageFile) && fs.statSync(imageFile).isFile()) {
+            try {
+                fs.unlinkSync(imageFile);
+                deleted = true;
+            } catch (e) {
+                console.error("Görsel silinirken hata oluştu:", imageFile, e);
             }
         }
 

@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0.."
 echo ===================================================
 echo Ada Lokanta - Site ve Yonetim Paneli Baslatiliyor...
 echo ===================================================

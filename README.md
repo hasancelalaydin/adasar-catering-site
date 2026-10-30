@@ -1,10 +1,8 @@
 # Adasar Catering Web Sitesi
 
-İstanbul'da hizmet veren Adasar Catering firması için geliştirilip satışa sunulan kurumsal web sitesi. Firma, teknik bilgiye ihtiyaç duymadan sitesini kendi yönetim panelinden güncelleyebilir.
+İstanbul'da hizmet veren Adasar Catering firması için geliştirilip satılan kurumsal web sitesi. Firma, teknik bilgiye ihtiyaç duymadan sitesini kendi yönetim panelinden güncelleyebilir.
 
 **Canlı site:** [adasarcatering.com](https://adasarcatering.com)
-
-![Adasar Catering](assets/hero_catering.png)
 
 ## Özellikler
 

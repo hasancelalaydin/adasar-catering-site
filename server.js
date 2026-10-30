@@ -17,9 +17,26 @@ const PUBLIC_DIR = path.join(__dirname, 'public');
 const ASSETS_DIR = path.join(PUBLIC_DIR, 'assets');
 const ADMIN_USER = process.env.ADMIN_USER || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+// GoDaddy her dağıtımda uygulamayı yeniden oluşturur, yalnızca /private kalıcıdır.
+// Panel verileri orada tutulur; klasör yoksa (kendi bilgisayarımızda) proje içindeki data.json kullanılır.
+const PRIVATE_DIR = process.env.PRIVATE_DIR || '/private';
+const USE_PRIVATE = fs.existsSync(PRIVATE_DIR);
+const DATA_PATH = path.join(USE_PRIVATE ? PRIVATE_DIR : __dirname, 'data.json');
 
 if (!ADMIN_PASSWORD) {
     console.warn('UYARI: ADMIN_PASSWORD tanımlı değil, yönetim paneli girişi kapalı. .env dosyasını kontrol edin.');
+}
+
+if (USE_PRIVATE) {
+    // İlk çalıştırmada başlangıç verisini kopyala, sonra sayfaları kalıcı veriyle güncelle
+    if (!fs.existsSync(DATA_PATH)) {
+        fs.copyFileSync(path.join(__dirname, 'data.json'), DATA_PATH);
+    }
+    try {
+        buildStatic(DATA_PATH);
+    } catch(err) {
+        console.error("HTML güncellenirken hata oluştu:", err);
+    }
 }
 
 app.use(express.json());
@@ -72,9 +89,8 @@ app.use(express.static(PUBLIC_DIR, { index: false }));
 
 // GET /api/data
 app.get('/api/data', (req, res) => {
-    const dataPath = path.join(__dirname, 'data.json');
-    if (fs.existsSync(dataPath)) {
-        res.json(JSON.parse(fs.readFileSync(dataPath, 'utf8')));
+    if (fs.existsSync(DATA_PATH)) {
+        res.json(JSON.parse(fs.readFileSync(DATA_PATH, 'utf8')));
     } else {
         res.json({});
     }
@@ -82,18 +98,17 @@ app.get('/api/data', (req, res) => {
 
 // POST /api/data
 app.post('/api/data', auth, (req, res) => {
-    const dataPath = path.join(__dirname, 'data.json');
     let existingData = {};
-    if (fs.existsSync(dataPath)) {
-        existingData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+    if (fs.existsSync(DATA_PATH)) {
+        existingData = JSON.parse(fs.readFileSync(DATA_PATH, 'utf8'));
     }
     
     existingData = { ...existingData, ...req.body };
-    fs.writeFileSync(dataPath, JSON.stringify(existingData, null, 4), 'utf8');
+    fs.writeFileSync(DATA_PATH, JSON.stringify(existingData, null, 4), 'utf8');
     
     // HTML dosyalarını doğrudan güncelle
     try {
-        buildStatic();
+        buildStatic(DATA_PATH);
     } catch(err) {
         console.error("HTML güncellenirken hata oluştu:", err);
     }

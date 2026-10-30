@@ -2,8 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const cheerio = require('cheerio');
 
-function updateHtmlFiles() {
-    const dataPath = path.join(__dirname, 'data.json');
+function updateHtmlFiles(dataPath = path.join(__dirname, 'data.json')) {
     if (!fs.existsSync(dataPath)) return;
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 
@@ -32,32 +31,32 @@ function updateHtmlFiles() {
         // -- Contact updates --
         if (data.contact_address && data.contact_address.trim()) {
             $('.dyn-contact-address').html(data.contact_address);
-            $('.dyn-contact-address').closest('.footer-contact-item').attr('style', 'display: flex;');
+            $('.dyn-contact-address').closest('.footer-contact-item').css('display', 'flex');
         } else {
-            $('.dyn-contact-address').closest('.footer-contact-item').attr('style', 'display: none;');
+            $('.dyn-contact-address').closest('.footer-contact-item').css('display', 'none');
         }
         
         if (data.contact_phone && data.contact_phone.trim()) {
             $('.dyn-contact-phone').text(data.contact_phone);
             $('.dyn-contact-phone-link').attr('href', 'tel:+' + data.contact_phone.replace(/\D/g, ''));
-            $('.dyn-contact-phone').closest('.footer-contact-item').attr('style', 'display: flex;');
+            $('.dyn-contact-phone').closest('.footer-contact-item').css('display', 'flex');
         } else {
-            $('.dyn-contact-phone').closest('.footer-contact-item').attr('style', 'display: none;');
+            $('.dyn-contact-phone').closest('.footer-contact-item').css('display', 'none');
         }
         
         if (data.contact_email && data.contact_email.trim()) {
             $('.dyn-contact-email').text(data.contact_email);
             $('.dyn-contact-email-link').attr('href', 'mailto:' + data.contact_email);
-            $('.dyn-contact-email').closest('.footer-contact-item').attr('style', 'display: flex;');
+            $('.dyn-contact-email').closest('.footer-contact-item').css('display', 'flex');
         } else {
-            $('.dyn-contact-email').closest('.footer-contact-item').attr('style', 'display: none;');
+            $('.dyn-contact-email').closest('.footer-contact-item').css('display', 'none');
         }
         
         if (data.contact_whatsapp && data.contact_whatsapp.trim()) {
             $('.dyn-contact-whatsapp-link').attr('href', 'https://wa.me/90' + data.contact_whatsapp.replace(/\D/g, '').replace(/^90/, ''));
-            $('.dyn-contact-whatsapp-link').attr('style', 'display: flex;');
+            $('.dyn-contact-whatsapp-link').css('display', 'flex');
         } else {
-            $('.dyn-contact-whatsapp-link').attr('style', 'display: none;');
+            $('.dyn-contact-whatsapp-link').css('display', 'none');
         }
         
         if (data.contact_instagram && data.contact_instagram.trim()) {
@@ -75,11 +74,11 @@ function updateHtmlFiles() {
             }
             $('.dyn-contact-instagram').text(instaText);
             $('.dyn-contact-instagram-link').attr('href', instaLink);
-            $('.dyn-contact-instagram-container').attr('style', 'display: flex;');
-            $('.dyn-social-instagram').attr('href', instaLink).attr('style', 'display: flex;');
+            $('.dyn-contact-instagram-container').css('display', 'flex');
+            $('.dyn-social-instagram').attr('href', instaLink).css('display', 'flex');
         } else {
-            $('.dyn-contact-instagram-container').attr('style', 'display: none;');
-            $('.dyn-social-instagram').attr('style', 'display: none;');
+            $('.dyn-contact-instagram-container').css('display', 'none');
+            $('.dyn-social-instagram').css('display', 'none');
         }
 
 
@@ -105,7 +104,7 @@ function updateHtmlFiles() {
                 if (hasSss) {
                     $('#sss-section').attr('style', 'display: block; background-color: #f9fafb; padding: 60px 0; border-top: 1px solid #e5e7eb;');
                 } else {
-                    $('#sss-section').attr('style', 'display: none;');
+                    $('#sss-section').css('display', 'none');
                 }
             }
         }

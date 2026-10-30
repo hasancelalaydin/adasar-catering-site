@@ -8,7 +8,7 @@ echo Lutfen bu siyah ekrani kapatmayin! Panelin calismasi icin acik kalmasi gere
 echo.
 
 :: Tarayicida admin panelini otomatik ac
-start "" http://localhost:8080/admin.html
+start "" http://localhost:8080/admin
 
 :: Node sunucusunu baslat
 node server.js

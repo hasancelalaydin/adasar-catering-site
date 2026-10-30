@@ -41,8 +41,13 @@ const auth = (req, res, next) => {
     res.status(401).send({"message": "Lütfen giriş yapın."});
 };
 
-// Protect admin.html
-app.get('/admin.html', auth, (req, res) => {
+// Eski panel adresi ve sonunda / olan adres /admin adresine yönlendirilir
+app.get(/^\/admin(\.html|\/)$/, (req, res) => {
+    res.redirect(301, '/admin');
+});
+
+// Protect admin panel
+app.get('/admin', auth, (req, res) => {
     res.sendFile(path.join(__dirname, 'private', 'admin.html'));
 });
 

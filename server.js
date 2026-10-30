@@ -49,25 +49,22 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'anasayfa.html'));
 });
 
-// Debug endpoint to check server directory structure
-app.get('/api/debug-files', (req, res) => {
-    try {
-        const rootFiles = fs.readdirSync(__dirname);
-        let assetsFiles = [];
-        const assetsPath = path.join(__dirname, 'assets');
-        if (fs.existsSync(assetsPath)) {
-            assetsFiles = fs.readdirSync(assetsPath);
-        }
-        res.json({
-            dirname: __dirname,
-            cwd: process.cwd(),
-            rootFiles,
-            assetsExists: fs.existsSync(assetsPath),
-            assetsFiles
-        });
-    } catch(e) {
-        res.status(500).json({ error: e.message });
+// Temiz adresler: /menuler gibi adresler sayfayı açar,
+// eski .html adresleri ile sonunda / olanlar kalıcı olarak temiz adrese yönlendirilir
+app.get(/^\/(anasayfa|hizmetlerimiz|menuler|iletisim)(\.html|\/)?$/, (req, res) => {
+    const page = req.params[0];
+    if (page !== 'anasayfa' && !req.params[1]) {
+        return res.sendFile(path.join(__dirname, page + '.html'));
     }
+    const query = req.originalUrl.slice(req.path.length);
+    res.redirect(301, (page === 'anasayfa' ? '/' : '/' + page) + query);
+});
+
+// Sitenin kullandığı kök dosyalar. server.js, data.json gibi dosyalar dışarıya açılmaz.
+['style.css', 'app.js'].forEach(file => {
+    app.get('/' + file, (req, res) => {
+        res.sendFile(path.join(__dirname, file));
+    });
 });
 
 // Explicit asset delivery handler
@@ -77,15 +74,11 @@ app.get('/assets/*path', (req, res, next) => {
     if (Array.isArray(assetPathStr)) {
         assetPathStr = assetPathStr.join('/');
     }
+    // Güvenlik: Yalnızca dosya adı kullanılır, assets klasörlerinin dışına çıkılamaz
     const filename = path.basename(assetPathStr);
     const candidates = [
-        path.join(__dirname, 'assets', assetPathStr),
-        path.join(process.cwd(), 'assets', assetPathStr),
-        path.join(__dirname, 'public', 'assets', assetPathStr),
-        path.join(__dirname, assetPathStr),
-        path.join(process.cwd(), assetPathStr),
-        // Fallbacks just in case
         path.join(__dirname, 'assets', filename),
+        path.join(process.cwd(), 'assets', filename),
         path.join(__dirname, 'public', 'assets', filename)
     ];
     for (const p of candidates) {
@@ -97,10 +90,8 @@ app.get('/assets/*path', (req, res, next) => {
 });
 
 // Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
-app.use(express.static(__dirname));
 
 // GET /api/data
 app.get('/api/data', (req, res) => {

@@ -128,6 +128,7 @@ function updateHtmlFiles() {
                             imgSrc = '/' + imgSrc;
                         }
                         const title = menu.baslik || 'Başlıksız Menü';
+                        const descHtml = (menu.desc || '').replace(/\n/g, '<br>');
                         
                         mContainer.append(`
                             <div class="dynamic-menu-card">
